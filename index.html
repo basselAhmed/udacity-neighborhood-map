@@ -41,7 +41,7 @@
             <div class="row">
                 <div class="col s12">
                     <div class="list-view" id="list-view" data-bind="foreach: locs">
-                        <a href="#!" data-bind="text: locName"></a>
+                        <a href="#!" data-bind="text: locName, click: $parent.markerToggle.bind($data, $index())"></a>
                     </div>
                 </div>
             </div>
@@ -49,8 +49,9 @@
     </div>
 
     <div class="map-overlay">
-        <a href="#" data-activates="side-menu" class="side-menu-trigger"><i class="material-icons material-hover">menu</i></a>
-        
+        <a href="#!" data-activates="side-menu" class="side-menu-trigger tooltipped" data-position="bottom" data-delay="50" data-tooltip="Open Side Menu"><i class="material-icons material-hover">menu</i></a>
+        <a href="#!" class="markerToggle show-markers tooltipped" data-position="bottom" data-delay="50" data-tooltip="Show All Markers" data-bind="click: showAllMarkers"><i class="material-icons material-hover">visibility</i></a>
+        <a href="#!" class="markerToggle hide-markers tooltipped" data-position="bottom" data-delay="50" data-tooltip="Hide All Markers" data-bind="click: hideAllMarkers"><i class="material-icons material-hover">visibility_off</i></a>
     </div>
 
 

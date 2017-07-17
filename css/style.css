@@ -453,7 +453,11 @@
         z-index: 98;
     }
 
-    .side-menu-trigger i {
+    .map-overlay a {
+        margin-right: 15px;
+    }
+
+    .side-menu-trigger i, .markerToggle i{
         color: #fff;
         background-color: #F7584C;
         border-radius: 50%;

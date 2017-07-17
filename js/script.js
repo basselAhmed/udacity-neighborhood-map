@@ -3,6 +3,7 @@ function AppViewModel() {
 	this.searchStr = ko.observable("");
 	this.locs = ko.observableArray([]);
 	this.markers = ko.observableArray([]);
+	this.infoWindows = ko.observableArray([]);
 
 	$('#search').keyup(function () {
 		var $sideLocs = $('#list-view a');
@@ -19,6 +20,33 @@ function AppViewModel() {
 			}
 		})
 	});
+
+	this.markerToggle = function (index) {
+		self.markers().forEach(function (m) {
+			m.setVisible(false);
+		}, this);
+		self.markers()[index].setVisible(true);
+		self.markers()[index].setAnimation(google.maps.Animation.BOUNCE);
+		setTimeout(function () {
+			self.markers()[index].setAnimation(null);
+		}, 1400)
+		self.infoWindows()[index].open(map, self.markers()[index]);
+	}
+
+	this.showAllMarkers = function () {
+		self.markers().forEach(function (m) {
+			m.setVisible(true);
+		}, this);
+	}
+	this.hideAllMarkers = function () {
+		self.markers().forEach(function (m) {
+			m.setVisible(false);
+		}, this);
+	}
+
+
+
+
 }
 
 // Activates knockout.js
@@ -35,6 +63,9 @@ window.onload = function () {
 		draggable: true,
 	});
 	$(".side-menu-trigger").sideNav('show');
+	$('.tooltipped').tooltip({
+		delay: 50
+	});
 
 	$.getJSON('https://ipinfo.io/json', function (data) {
 		// console.log(data)
@@ -195,17 +226,19 @@ function initMap(myLat, myLng) {
 	var service = new google.maps.places.PlacesService(map);
 	var request = {
 		location: new google.maps.LatLng(myLat, myLng),
-		radius: '500',
+		radius: '1000',
 		type: ['restaurant']
 	};
 	service.nearbySearch(request, function (results, status) {
 		// console.log(results);
+		var id = 0;
 		results.forEach(function (nearbyLoc) {
 			var thisLat = parseFloat(nearbyLoc.geometry.location.lat())
 			var thisLng = parseFloat(nearbyLoc.geometry.location.lng())
 
 
 			avm.locs.push({
+				id: id,
 				locName: nearbyLoc.name,
 				locPos: {
 					lat: thisLat,
@@ -213,6 +246,8 @@ function initMap(myLat, myLng) {
 				},
 				data: ""
 			})
+			id++;
+
 		}, this);
 		showMarkersForLocs()
 	});
@@ -236,7 +271,7 @@ function initMap(myLat, myLng) {
 
 			var locData = "";
 			$.ajax({
-				url: 'https://api.foursquare.com/v2/venues/search?ll=' + loc.locPos.lat + ',' + loc.locPos.lng + '&v=20170717&client_id=UZUO4XYN2UOWGZ25MKT20VX30NUFW5Y4LTKYDRMSR4APIQ5P&client_secret=M30HEGVWKTOM5TKG2QSWGROL0TTAXUONEPBYO0E4FZHEWWHZ',
+				url: 'https://api.foursquare.com/v2/venues/search?ll=' + loc.locPos.lat + ',' + loc.locPos.lng + '&v=20170717&client_id=XYM3SXXMSZHIYORAVSU2YSHQG0YWZ13FZ2ELGFQLEQKZ2C0D&client_secret=T3JVTAKYWUOWCS4CDIRK5BU5Q3UB5GYE5JH0ICT404H2W53J',
 				dataType: 'jsonp',
 				success: function (data) {
 					// console.log(data.response.venues[0]);
@@ -249,28 +284,31 @@ function initMap(myLat, myLng) {
 							if (cat.toLowerCase().indexOf("restaurant") > -1) {
 								console.log(element);
 
-								locData = "<h5 class='loc-title'>"+loc.locName+"</h5>" +
-								"<div class='stats-list'>";
+								locData = "<h5 class='loc-title'>" + loc.locName + "</h5>" +
+									"<div class='stats-list'>";
 								if (element.stats.checkinsCount) {
-									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Check-in Count</div><div class='col s6 stat-val right-align flow-text'>"+element.stats.checkinsCount+"</div></div>"
+									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Check-in Count</div><div class='col s6 stat-val right-align flow-text'>" + element.stats.checkinsCount + "</div></div>"
 								}
 								if (element.stats.usersCount) {
-									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Foursquare users Count</div><div class='col s6 stat-val right-align flow-text'>"+element.stats.usersCount+"</div></div>"
+									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Foursquare users Count</div><div class='col s6 stat-val right-align flow-text'>" + element.stats.usersCount + "</div></div>"
 								}
 								if (element.contact.formattedPhone) {
-									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Phone</div><div class='col s6 stat-val right-align flow-text'>"+element.contact.formattedPhone+"</div></div>"
+									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Phone</div><div class='col s6 stat-val right-align flow-text'>" + element.contact.formattedPhone + "</div></div>"
 								}
 								if (element.location.address) {
-									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Adress</div><div class='col s6 stat-val right-align flow-text'>"+element.location.address+"</div></div>"
+									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Adress</div><div class='col s6 stat-val right-align flow-text'>" + element.location.address + "</div></div>"
 								}
 								if (element.contact.twitter) {
-									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Twitter</div><div class='col s6 stat-val right-align flow-text'>"+element.contact.twitter+"</div></div>"
+									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Twitter</div><div class='col s6 stat-val right-align flow-text'>" + element.contact.twitter + "</div></div>"
 								}
-								
+
 								"</div>";
 								var infoWindow = new google.maps.InfoWindow({
 									content: locData
 								})
+
+								avm.infoWindows.push(infoWindow);
+
 								marker.addListener('click', function () {
 									marker.setAnimation(google.maps.Animation.BOUNCE);
 									setTimeout(function () {
