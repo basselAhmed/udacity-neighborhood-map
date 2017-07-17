@@ -517,3 +517,7 @@
     .stat-val {
         font-weight: 400;
     }
+
+    .gm-style-iw > div > div:first-child {
+        overflow-x: hidden !important;
+    }

@@ -32,15 +32,23 @@ function AppViewModel() {
 	 * Function for displaying single marker when clicking on a single item from the sidebar
 	 */
 	this.markerToggle = function (index) {
+		console.log(index);
 		self.markers().forEach(function (m) {
 			m.setVisible(false);
+			if (m.id == index) {
+				m.setVisible(true);
+				m.setAnimation(google.maps.Animation.BOUNCE);
+				setTimeout(function () {
+					m.setAnimation(null);
+				}, 1400)
+				self.infoWindows().forEach(function (info) {
+					if (info.id == index) {
+						info.open(map, m);
+					}
+				}, this);
+
+			}
 		}, this);
-		self.markers()[index].setVisible(true);
-		self.markers()[index].setAnimation(google.maps.Animation.BOUNCE);
-		setTimeout(function () {
-			self.markers()[index].setAnimation(null);
-		}, 1400)
-		self.infoWindows()[index-1].open(map, self.markers()[index]);
 	}
 
 	/**
@@ -60,27 +68,30 @@ function AppViewModel() {
 		}, this);
 	}
 
+	/**
+	 * Function that executes on window load to show the sidebar, get the IP and initializes the map
+	 */
+	window.onload = function () {
+		$(".side-menu-trigger").sideNav({
+			menuWidth: 300,
+			edge: 'left',
+			closeOnClick: true,
+			draggable: true,
+		});
+		$(".side-menu-trigger").sideNav('show');
+		$('.tooltipped').tooltip({
+			delay: 50
+		});
 
-window.onload = function () {
-	$(".side-menu-trigger").sideNav({
-		menuWidth: 300,
-		edge: 'left',
-		closeOnClick: true,
-		draggable: true,
-	});
-	$(".side-menu-trigger").sideNav('show');
-	$('.tooltipped').tooltip({
-		delay: 50
-	});
-
-	$.getJSON('https://ipinfo.io/json', function (data) {
-		// console.log(data)
-		var myLoc = data.loc;
-		var myLat = parseFloat(myLoc.split(',')[0])
-		var myLng = parseFloat(myLoc.split(',')[1])
-		initMap(myLat, myLng);
-	})
-}
+		// get IP from API
+		$.getJSON('https://ipinfo.io/json', function (data) {
+			// console.log(data)
+			var myLoc = data.loc;
+			var myLat = parseFloat(myLoc.split(',')[0])
+			var myLng = parseFloat(myLoc.split(',')[1])
+			initMap(myLat, myLng);
+		})
+	}
 
 }
 
@@ -88,12 +99,11 @@ window.onload = function () {
 var avm = new AppViewModel();
 ko.applyBindings(avm);
 
-/**
- * 
- */
-
 
 function initMap(myLat, myLng) {
+	/**
+	 * Night mode style - credit goes to google :D
+	 */
 	var styles = [{
 			elementType: 'geometry',
 			stylers: [{
@@ -224,21 +234,19 @@ function initMap(myLat, myLng) {
 		lat: myLat,
 		lng: myLng
 	};
+
+	/**
+	 * Initalize the map and assign it to map variable
+	 */
 	var map = new google.maps.Map(document.getElementById('map'), {
 		zoom: 16,
 		center: pos,
 		styles: styles
 	});
 
-	// Get Current address with lat lng - Not Neede so far
-	/*
-	$.getJSON('https://maps.googleapis.com/maps/api/geocode/json?latlng='+myLat+','+myLng+'&key=AIzaSyCdVCQ3Fr4ySpWtvNUytoyeDyao5beO6sQ', function (data) {
-		console.log(data)
-		console.log(data.results[0].formatted_address)
-	})
-	*/
-
-
+	/**
+	 * Get nearby places of restaurant type around a radius of the users location
+	 */
 	var service = new google.maps.places.PlacesService(map);
 	var request = {
 		location: new google.maps.LatLng(myLat, myLng),
@@ -251,8 +259,7 @@ function initMap(myLat, myLng) {
 		results.forEach(function (nearbyLoc) {
 			var thisLat = parseFloat(nearbyLoc.geometry.location.lat())
 			var thisLng = parseFloat(nearbyLoc.geometry.location.lng())
-
-
+			// store the locations in our appViewModel
 			avm.locs.push({
 				id: id,
 				locName: nearbyLoc.name,
@@ -260,7 +267,7 @@ function initMap(myLat, myLng) {
 					lat: thisLat,
 					lng: thisLng,
 				},
-				data: ""
+				data: "" // this is empty for now - stores infowindow html
 			})
 			id++;
 
@@ -270,36 +277,44 @@ function initMap(myLat, myLng) {
 
 
 	function showMarkersForLocs() {
+		// Get Locations from our appViewModel
 		var arr = avm.locs()
 		arr.forEach(function (loc) {
-			// console.log(loc);
+			console.log(loc);
 			var marker = new google.maps.Marker({
+				id: loc.id,
 				position: loc.locPos,
 				map: map,
 				title: loc.locName,
 				animation: google.maps.Animation.DROP
 			});
 
-			avm.markers.push(marker);
-			// var bounds = new google.maps.LatLngBounds();
-			// bounds.extend(marker.getPosition());
-			// map.fitBounds(bounds);
+			avm.markers.push(marker); // stores each marker in our appViewModel markers array
 
+			/**
+			 * I used Foursquare API to get data about each location and store that in each marker's infowindow
+			 * through the data variable
+			 */
 			var locData = "";
 			$.ajax({
 				url: 'https://api.foursquare.com/v2/venues/search?ll=' + loc.locPos.lat + ',' + loc.locPos.lng + '&v=20170717&client_id=XYM3SXXMSZHIYORAVSU2YSHQG0YWZ13FZ2ELGFQLEQKZ2C0D&client_secret=T3JVTAKYWUOWCS4CDIRK5BU5Q3UB5GYE5JH0ICT404H2W53J',
 				dataType: 'jsonp',
-				success: function (data) {
-					// console.log(data.response.venues[0]);
+				success: function (data) { // success handler
+					// console.log(data.response.venues);
 					// element = data.response.venues[0];
 					var cat = "";
+					/**
+					 * Foursquare return multiple places of different types so I ran through them to find out which is 
+					 * restaurant and of the same latitude and longitude
+					 */
+					var flag = 0;
 					for (var i = 0; i < data.response.venues.length; i++) {
 						var element = data.response.venues[i];
 						if (element.hasOwnProperty('categories') && element.categories.length > 0) {
 							cat = element.categories[0].name
 							if (cat.toLowerCase().indexOf("restaurant") > -1) {
-								console.log(element);
-
+								// console.log(element);
+								// HTML for infowindow containing data retrieved from the API
 								locData = "<h5 class='loc-title'>" + loc.locName + "</h5>" +
 									"<div class='stats-list'>";
 								if (element.stats.checkinsCount) {
@@ -317,13 +332,15 @@ function initMap(myLat, myLng) {
 								if (element.contact.twitter) {
 									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Twitter</div><div class='col s6 stat-val right-align flow-text'>" + element.contact.twitter + "</div></div>"
 								}
-
 								"</div>";
+
+								// create the infowindow with the data
 								var infoWindow = new google.maps.InfoWindow({
+									id: loc.id,
 									content: locData
 								})
 
-								avm.infoWindows.push(infoWindow);
+								avm.infoWindows.push(infoWindow); // store each infoWindow in our appViewModel
 
 								marker.addListener('click', function () {
 									marker.setAnimation(google.maps.Animation.BOUNCE);
@@ -332,18 +349,37 @@ function initMap(myLat, myLng) {
 									}, 1400)
 									infoWindow.open(map, marker);
 								})
-
-
 								break;
+							} else {
+								flag++;
+							}
+							if (flag == data.response.venues.length) {
+								// create the infowindow with NO data
+								locData = "<h5 class='loc-title'>" + loc.locName + "</h5>" +
+									"<div class='stats-list'>";
+								if (element.stats.checkinsCount) {
+									locData += "<div class='row'><div class='col s12 stat-name flow-text'>Couldn't find any data in Foursquare about this place</div></div>"
+								}
+								"</div>";
+								var infoWindow = new google.maps.InfoWindow({
+									id: loc.id,
+									content: locData
+								})
+								avm.infoWindows.push(infoWindow); // store each infoWindow in our appViewModel
+								marker.addListener('click', function () {
+									marker.setAnimation(google.maps.Animation.BOUNCE);
+									setTimeout(function () {
+										marker.setAnimation(null);
+									}, 1400)
+									infoWindow.open(map, marker);
+								})
 							}
 						}
 					}
-
-
+					flag = 0;
 				},
 				error: function (err) {
 					console.log(err);
-
 				}
 			})
 
