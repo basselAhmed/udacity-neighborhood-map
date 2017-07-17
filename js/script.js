@@ -25,7 +25,7 @@ function AppViewModel() {
 				$(this).show();
 				self.markers()[index].setVisible(true);
 			}
-		})
+		});
 	});
 
 	/**
@@ -40,7 +40,7 @@ function AppViewModel() {
 				m.setAnimation(google.maps.Animation.BOUNCE);
 				setTimeout(function () {
 					m.setAnimation(null);
-				}, 1400)
+				}, 1400);
 				self.infoWindows().forEach(function (info) {
 					if (info.id == index) {
 						info.open(map, m);
@@ -49,7 +49,7 @@ function AppViewModel() {
 
 			}
 		}, this);
-	}
+	};
 
 	/**
 	 * Function for showing all markers
@@ -58,7 +58,7 @@ function AppViewModel() {
 		self.markers().forEach(function (m) {
 			m.setVisible(true);
 		}, this);
-	}
+	};
 	/**
 	 * Function for hiding all markers
 	 */
@@ -66,7 +66,7 @@ function AppViewModel() {
 		self.markers().forEach(function (m) {
 			m.setVisible(false);
 		}, this);
-	}
+	};
 
 	/**
 	 * Function that executes on window load to show the sidebar, get the IP and initializes the map
@@ -87,12 +87,11 @@ function AppViewModel() {
 		$.getJSON('https://ipinfo.io/json', function (data) {
 			// console.log(data)
 			var myLoc = data.loc;
-			var myLat = parseFloat(myLoc.split(',')[0])
-			var myLng = parseFloat(myLoc.split(',')[1])
+			var myLat = parseFloat(myLoc.split(',')[0]);
+			var myLng = parseFloat(myLoc.split(',')[1]);
 			initMap(myLat, myLng);
-		})
-	}
-
+		});
+	};
 }
 
 // Activates knockout.js
@@ -227,7 +226,7 @@ function initMap(myLat, myLng) {
 				color: '#17263c'
 			}]
 		}
-	]
+	];
 
 
 	var pos = {
@@ -257,8 +256,8 @@ function initMap(myLat, myLng) {
 		// console.log(results);
 		var id = 0;
 		results.forEach(function (nearbyLoc) {
-			var thisLat = parseFloat(nearbyLoc.geometry.location.lat())
-			var thisLng = parseFloat(nearbyLoc.geometry.location.lng())
+			var thisLat = parseFloat(nearbyLoc.geometry.location.lat());
+			var thisLng = parseFloat(nearbyLoc.geometry.location.lng());
 			// store the locations in our appViewModel
 			avm.locs.push({
 				id: id,
@@ -268,17 +267,17 @@ function initMap(myLat, myLng) {
 					lng: thisLng,
 				},
 				data: "" // this is empty for now - stores infowindow html
-			})
+			});
 			id++;
 
 		}, this);
-		showMarkersForLocs()
+		showMarkersForLocs();
 	});
 
 
 	function showMarkersForLocs() {
 		// Get Locations from our appViewModel
-		var arr = avm.locs()
+		var arr = avm.locs();
 		arr.forEach(function (loc) {
 			console.log(loc);
 			var marker = new google.maps.Marker({
@@ -311,26 +310,26 @@ function initMap(myLat, myLng) {
 					for (var i = 0; i < data.response.venues.length; i++) {
 						var element = data.response.venues[i];
 						if (element.hasOwnProperty('categories') && element.categories.length > 0) {
-							cat = element.categories[0].name
+							cat = element.categories[0].name;
 							if (cat.toLowerCase().indexOf("restaurant") > -1) {
 								// console.log(element);
 								// HTML for infowindow containing data retrieved from the API
 								locData = "<h5 class='loc-title'>" + loc.locName + "</h5>" +
 									"<div class='stats-list'>";
 								if (element.stats.checkinsCount) {
-									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Check-in Count</div><div class='col s6 stat-val right-align flow-text'>" + element.stats.checkinsCount + "</div></div>"
+									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Check-in Count</div><div class='col s6 stat-val right-align flow-text'>" + element.stats.checkinsCount + "</div></div>";
 								}
 								if (element.stats.usersCount) {
-									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Foursquare users Count</div><div class='col s6 stat-val right-align flow-text'>" + element.stats.usersCount + "</div></div>"
+									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Foursquare users Count</div><div class='col s6 stat-val right-align flow-text'>" + element.stats.usersCount + "</div></div>";
 								}
 								if (element.contact.formattedPhone) {
-									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Phone</div><div class='col s6 stat-val right-align flow-text'>" + element.contact.formattedPhone + "</div></div>"
+									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Phone</div><div class='col s6 stat-val right-align flow-text'>" + element.contact.formattedPhone + "</div></div>";
 								}
 								if (element.location.address) {
-									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Adress</div><div class='col s6 stat-val right-align flow-text'>" + element.location.address + "</div></div>"
+									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Adress</div><div class='col s6 stat-val right-align flow-text'>" + element.location.address + "</div></div>";
 								}
 								if (element.contact.twitter) {
-									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Twitter</div><div class='col s6 stat-val right-align flow-text'>" + element.contact.twitter + "</div></div>"
+									locData += "<div class='row'><div class='col s6 stat-name flow-text'>Twitter</div><div class='col s6 stat-val right-align flow-text'>" + element.contact.twitter + "</div></div>";
 								}
 								"</div>";
 
@@ -338,7 +337,7 @@ function initMap(myLat, myLng) {
 								var infoWindow = new google.maps.InfoWindow({
 									id: loc.id,
 									content: locData
-								})
+								});
 
 								avm.infoWindows.push(infoWindow); // store each infoWindow in our appViewModel
 
@@ -348,7 +347,7 @@ function initMap(myLat, myLng) {
 										marker.setAnimation(null);
 									}, 1400)
 									infoWindow.open(map, marker);
-								})
+								});
 								break;
 							} else {
 								flag++;
@@ -358,21 +357,21 @@ function initMap(myLat, myLng) {
 								locData = "<h5 class='loc-title'>" + loc.locName + "</h5>" +
 									"<div class='stats-list'>";
 								if (element.stats.checkinsCount) {
-									locData += "<div class='row'><div class='col s12 stat-name flow-text'>Couldn't find any data in Foursquare about this place</div></div>"
+									locData += "<div class='row'><div class='col s12 stat-name flow-text'>Couldn't find any data in Foursquare about this place</div></div>";
 								}
 								"</div>";
 								var infoWindow = new google.maps.InfoWindow({
 									id: loc.id,
 									content: locData
-								})
+								});
 								avm.infoWindows.push(infoWindow); // store each infoWindow in our appViewModel
 								marker.addListener('click', function () {
 									marker.setAnimation(google.maps.Animation.BOUNCE);
 									setTimeout(function () {
 										marker.setAnimation(null);
-									}, 1400)
+									}, 1400);
 									infoWindow.open(map, marker);
-								})
+								});
 							}
 						}
 					}
