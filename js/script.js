@@ -344,13 +344,7 @@ function initMap(myLat, myLng) {
 
 								avm.infoWindows.push(infoWindow); // store each infoWindow in our appViewModel
 
-								marker.addListener('click', function () {
-									marker.setAnimation(google.maps.Animation.BOUNCE);
-									setTimeout(function () {
-										marker.setAnimation(null);
-									}, 1400);
-									infoWindow.open(map, marker);
-								});
+								marker.addListener('click', attachClickToMarker(map, marker, infoWindow));
 								break;
 							} else {
 								flag++;
@@ -368,13 +362,7 @@ function initMap(myLat, myLng) {
 									content: locData
 								});
 								avm.infoWindows.push(infoWindow); // store each infoWindow in our appViewModel
-								marker.addListener('click', function () {
-									marker.setAnimation(google.maps.Animation.BOUNCE);
-									setTimeout(function () {
-										marker.setAnimation(null);
-									}, 1400);
-									infoWindow.open(map, marker);
-								});
+								marker.addListener('click', attachClickToMarker(map, marker, infoWindow));
 							}
 						}
 					}
@@ -388,6 +376,16 @@ function initMap(myLat, myLng) {
 
 		}, this);
 		// console.log(avm.markers());
+	}
+	
+	 function attachClickToMarker(map, marker, infoWindow) {
+		 return function() {
+			marker.setAnimation(google.maps.Animation.BOUNCE);
+			setTimeout(function () {
+				marker.setAnimation(null);
+			}, 1400);
+			infoWindow.open(map, marker);
+		}
 	}
 
 
