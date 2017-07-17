@@ -4,10 +4,13 @@
 		A Simple, ease and intuitive way to find the best restaurants in your area
 		<hr>
 	</p>
+	<p align="center">
+		Neighborhood Map project finds your current IP address then uses geolocation to find your most approximate location, sure enough it ain't accurate and might find yourself at sea but that's the best I could do without GPS nor HTML5 geolocation API because that requires ssl connection to work and I can't gurantee that all people open from secure connection on their server or something.
+	</p>
 </p>
 
 
-Neighborhood Map project finds your current IP address then uses geolocation to find your most approximate location, sure enough it ain't accurate and might find yourself at sea but that's the best I could do without GPS nor HTML5 geolocation API because that requires ssl connection to work and I can't gurantee that all people open from secure connection on their server or something.
+
 
 ## Technologies used
 - KnockoutJS - For MVVM Structure
