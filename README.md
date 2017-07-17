@@ -1,5 +1,5 @@
 <p align="center">
-	<h3 align="center" style="font-weight: 700">Neighborhood Map</h3>
+	<h2 align="center" style="font-weight: 700">Neighborhood Map</h2>
 	<p align="center">
 		A Simple, ease and intuitive way to find the best restaurants in your area
 		<hr>
