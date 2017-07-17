@@ -1,3 +1,7 @@
+/**
+ * KnouckoutJS ViewModel contains all the primary data like locations, markers and infoWindows through
+ * ObservableArrays
+ */
 function AppViewModel() {
 	var self = this;
 	this.searchStr = ko.observable("");
@@ -5,6 +9,9 @@ function AppViewModel() {
 	this.markers = ko.observableArray([]);
 	this.infoWindows = ko.observableArray([]);
 
+	/**
+	 * Event for keyup on search box to filter results and show the respective markers on the map
+	 */
 	$('#search').keyup(function () {
 		var $sideLocs = $('#list-view a');
 		var val = $(this).val().toLowerCase();
@@ -21,6 +28,9 @@ function AppViewModel() {
 		})
 	});
 
+	/**
+	 * Function for displaying single marker when clicking on a single item from the sidebar
+	 */
 	this.markerToggle = function (index) {
 		self.markers().forEach(function (m) {
 			m.setVisible(false);
@@ -30,14 +40,20 @@ function AppViewModel() {
 		setTimeout(function () {
 			self.markers()[index].setAnimation(null);
 		}, 1400)
-		self.infoWindows()[index].open(map, self.markers()[index]);
+		self.infoWindows()[index-1].open(map, self.markers()[index]);
 	}
 
+	/**
+	 * Function for showing all markers
+	 */
 	this.showAllMarkers = function () {
 		self.markers().forEach(function (m) {
 			m.setVisible(true);
 		}, this);
 	}
+	/**
+	 * Function for hiding all markers
+	 */
 	this.hideAllMarkers = function () {
 		self.markers().forEach(function (m) {
 			m.setVisible(false);
@@ -45,17 +61,7 @@ function AppViewModel() {
 	}
 
 
-
-
-}
-
-// Activates knockout.js
-var avm = new AppViewModel();
-ko.applyBindings(avm);
-
-
 window.onload = function () {
-
 	$(".side-menu-trigger").sideNav({
 		menuWidth: 300,
 		edge: 'left',
@@ -74,8 +80,18 @@ window.onload = function () {
 		var myLng = parseFloat(myLoc.split(',')[1])
 		initMap(myLat, myLng);
 	})
+}
 
 }
+
+// Activates knockout.js
+var avm = new AppViewModel();
+ko.applyBindings(avm);
+
+/**
+ * 
+ */
+
 
 function initMap(myLat, myLng) {
 	var styles = [{
