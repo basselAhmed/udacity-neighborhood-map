@@ -1,3 +1,5 @@
+/*jshint loopfunc: true */
+
 /**
  * KnouckoutJS ViewModel contains all the primary data like locations, markers and infoWindows through
  * ObservableArrays
@@ -295,6 +297,7 @@ function initMap(myLat, myLng) {
 			 * through the data variable
 			 */
 			var locData = "";
+			var infoWindow;
 			$.ajax({
 				url: 'https://api.foursquare.com/v2/venues/search?ll=' + loc.locPos.lat + ',' + loc.locPos.lng + '&v=20170717&client_id=XYM3SXXMSZHIYORAVSU2YSHQG0YWZ13FZ2ELGFQLEQKZ2C0D&client_secret=T3JVTAKYWUOWCS4CDIRK5BU5Q3UB5GYE5JH0ICT404H2W53J',
 				dataType: 'jsonp',
@@ -334,7 +337,7 @@ function initMap(myLat, myLng) {
 								"</div>";
 
 								// create the infowindow with the data
-								var infoWindow = new google.maps.InfoWindow({
+								infoWindow = new google.maps.InfoWindow({
 									id: loc.id,
 									content: locData
 								});
@@ -345,7 +348,7 @@ function initMap(myLat, myLng) {
 									marker.setAnimation(google.maps.Animation.BOUNCE);
 									setTimeout(function () {
 										marker.setAnimation(null);
-									}, 1400)
+									}, 1400);
 									infoWindow.open(map, marker);
 								});
 								break;
@@ -360,7 +363,7 @@ function initMap(myLat, myLng) {
 									locData += "<div class='row'><div class='col s12 stat-name flow-text'>Couldn't find any data in Foursquare about this place</div></div>";
 								}
 								"</div>";
-								var infoWindow = new google.maps.InfoWindow({
+								infoWindow = new google.maps.InfoWindow({
 									id: loc.id,
 									content: locData
 								});
@@ -380,7 +383,7 @@ function initMap(myLat, myLng) {
 				error: function (err) {
 					console.log(err);
 				}
-			})
+			});
 
 
 		}, this);
