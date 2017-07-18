@@ -164,7 +164,7 @@ function initMap(myLat, myLng) {
 	var service = new google.maps.places.PlacesService(map);
 	var request = {
 		location: new google.maps.LatLng(myLat, myLng),
-		radius: '1000',
+		radius: '2000',
 		type: ['restaurant']
 	};
 	service.nearbySearch(request, function (results, status) {

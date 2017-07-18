@@ -14,7 +14,9 @@
 - or if you wanna get your hands dirty with the code:
 -- Download or clone this repo on your local machine.
 -- Extract the files in your web server root directory, Here's a web server if you don't have one [XAMPP](https://www.apachefriends.org/download.html).
--- Open up index.html and enjoy.
+-- or you could use python server from the command line as follows: python -m http.server 8080 (python 3)
+-- or install nodejs and run `npm install -g live-server` then run cd into the project and run `live-server` from your terminal
+-- Open up index.html through the server and enjoy.
 
 ## Technologies used
 - KnockoutJS - For MVVM Structure.
