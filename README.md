@@ -20,7 +20,10 @@
 - KnockoutJS - For MVVM Structure.
 - jQuery - For quick manipulation of the DOM.
 - MaterializeCSS - For UI Elements like sidebar, buttons and tooltips.
+- ipinfo.io API to get IP
 - Google Maps API - Surely for displaying the map xD.
+- Google Places API - to get nearby places
+- Foursquare API - to get data about places
 
 ## BUGS
 Hey if you find any bugs and I'm sure you will, please open up an issue here on Github or feel free to contact me directly at [bassel.ahmed@outlook.com ](mailto:bassel.ahmed@outlook.com)

@@ -86,7 +86,13 @@ function AppViewModel() {
 		});
 
 		// get IP from API
-		
+		$.getJSON('https://ipinfo.io/json', function (data) {
+			// console.log(data)
+			var myLoc = data.loc;
+			var myLat = parseFloat(myLoc.split(',')[0]);
+			var myLng = parseFloat(myLoc.split(',')[1]);
+			initMap(myLat, myLng);
+		});
 	};
 }
 
@@ -95,39 +101,134 @@ var avm = new AppViewModel();
 ko.applyBindings(avm);
 
 
-function getLoc() {
-	$.getJSON('https://ipinfo.io/json', function (data) {
-		// console.log(data)
-		var myLoc = data.loc;
-		var myLat = parseFloat(myLoc.split(',')[0]);
-		var myLng = parseFloat(myLoc.split(',')[1]);
-
-		var styles = [];
-		getStyles(styles, myLat, myLng);
-
-	}).fail(function(err){
-		console.log(err);
-		Materialize.toast("Couldn't connect to API", 4000, 'rounded') 
-	});
-}
-
-function getStyles(styles, myLat, myLng) {
+function initMap(myLat, myLng) {
 	/**
 	 * Night mode style - credit goes to google :D
 	 */
-	$.getJSON('js/mapStyle.json', function (data) {
-		console.log(data)
-		styles = data
-
-		initMap(styles, myLat, myLng);
-	}).fail(function(err){
-		console.log(err);
-		Materialize.toast("Couldn't Fetch Map Style", 4000, 'rounded') 
-	});
-}
-
-function initMap(styles, myLat, myLng) {
-	
+	var styles = [{
+			elementType: 'geometry',
+			stylers: [{
+				color: '#242f3e'
+			}]
+		},
+		{
+			elementType: 'labels.text.stroke',
+			stylers: [{
+				color: '#242f3e'
+			}]
+		},
+		{
+			elementType: 'labels.text.fill',
+			stylers: [{
+				color: '#746855'
+			}]
+		},
+		{
+			featureType: 'administrative.locality',
+			elementType: 'labels.text.fill',
+			stylers: [{
+				color: '#d59563'
+			}]
+		},
+		{
+			featureType: 'poi',
+			elementType: 'labels.text.fill',
+			stylers: [{
+				color: '#d59563'
+			}]
+		},
+		{
+			featureType: 'poi.park',
+			elementType: 'geometry',
+			stylers: [{
+				color: '#263c3f'
+			}]
+		},
+		{
+			featureType: 'poi.park',
+			elementType: 'labels.text.fill',
+			stylers: [{
+				color: '#6b9a76'
+			}]
+		},
+		{
+			featureType: 'road',
+			elementType: 'geometry',
+			stylers: [{
+				color: '#38414e'
+			}]
+		},
+		{
+			featureType: 'road',
+			elementType: 'geometry.stroke',
+			stylers: [{
+				color: '#212a37'
+			}]
+		},
+		{
+			featureType: 'road',
+			elementType: 'labels.text.fill',
+			stylers: [{
+				color: '#9ca5b3'
+			}]
+		},
+		{
+			featureType: 'road.highway',
+			elementType: 'geometry',
+			stylers: [{
+				color: '#746855'
+			}]
+		},
+		{
+			featureType: 'road.highway',
+			elementType: 'geometry.stroke',
+			stylers: [{
+				color: '#1f2835'
+			}]
+		},
+		{
+			featureType: 'road.highway',
+			elementType: 'labels.text.fill',
+			stylers: [{
+				color: '#f3d19c'
+			}]
+		},
+		{
+			featureType: 'transit',
+			elementType: 'geometry',
+			stylers: [{
+				color: '#2f3948'
+			}]
+		},
+		{
+			featureType: 'transit.station',
+			elementType: 'labels.text.fill',
+			stylers: [{
+				color: '#d59563'
+			}]
+		},
+		{
+			featureType: 'water',
+			elementType: 'geometry',
+			stylers: [{
+				color: '#17263c'
+			}]
+		},
+		{
+			featureType: 'water',
+			elementType: 'labels.text.fill',
+			stylers: [{
+				color: '#515c6d'
+			}]
+		},
+		{
+			featureType: 'water',
+			elementType: 'labels.text.stroke',
+			stylers: [{
+				color: '#17263c'
+			}]
+		}
+	];
 
 
 	var pos = {
@@ -269,7 +370,6 @@ function initMap(styles, myLat, myLng) {
 				},
 				error: function (err) {
 					console.log(err);
-					Materialize.toast("Couldn't connect to Foursquare API", 4000, 'rounded')
 				}
 			});
 
@@ -277,23 +377,23 @@ function initMap(styles, myLat, myLng) {
 		}, this);
 		// console.log(avm.markers());
 	}
-
-	function attachClickToMarker(map, marker, infoWindow) {
-		return function () {
+	
+	 function attachClickToMarker(map, marker, infoWindow) {
+		 return function() {
 			marker.setAnimation(google.maps.Animation.BOUNCE);
 			setTimeout(function () {
 				marker.setAnimation(null);
 			}, 1400);
-			avm.infoWindows().forEach(function(inf){
-				inf.close();
-			})
 			infoWindow.open(map, marker);
 		}
 	}
 
 
-}
 
-function gmapsLoadingFailed() {
-	Materialize.toast("Couldn't fetch Google Maps", 4000, 'rounded')
+
+
+
+
+
+
 }
