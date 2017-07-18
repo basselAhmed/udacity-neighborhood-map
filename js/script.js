@@ -23,8 +23,7 @@ function AppViewModel() {
 		} else {
 			// input found, match keyword to filter
 			return ko.utils.arrayFilter(this.locs(), (locss) => {
-				var returnVal = locss.locName.toLowerCase().indexOf(this.filterKeyword().toLowerCase()) !== -1
-				return returnVal;
+				return locss.locName.toLowerCase().indexOf(this.filterKeyword().toLowerCase()) !== -1;
 			});
 		} //.conditional
 	}); //.filterLocs

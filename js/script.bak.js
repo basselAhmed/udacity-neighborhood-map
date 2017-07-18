@@ -385,7 +385,7 @@ function initMap(myLat, myLng) {
 				marker.setAnimation(null);
 			}, 1400);
 			infoWindow.open(map, marker);
-		}
+		};
 	}
 
 
