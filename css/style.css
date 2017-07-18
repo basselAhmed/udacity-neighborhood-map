@@ -521,3 +521,14 @@
     .gm-style-iw > div > div:first-child {
         overflow-x: hidden !important;
     }
+
+    .attribution {
+        position: absolute;
+        bottom: 14px;
+        right: 0;
+    }
+    .attribution img {
+        display: block;
+        max-width: 242px;
+        background-color: #b6b9be
+    }

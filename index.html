@@ -35,14 +35,15 @@
             <div class="body">
                 <div class="row">
                     <div class="input-field col s12">
-                        <input id="search" type="text" class="validate" data-bind="value: searchStr">
+                        <input id="search" type="text" class="validate" data-bind="textInput: filterKeyword, event: {keyup: markersUpdate}" autocomplete="off">
                         <label for="search">Search...</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col s12">
-                        <div class="list-view" id="list-view" data-bind="foreach: locs">
-                            <a href="#!" data-bind="text: locName, click: $parent.markerToggle.bind($data, $index())"></a>
+                        <!-- <span class="flow-text" data-bind="text: filterLocs().length"></span> -->
+                        <div class="list-view" id="list-view" data-bind="foreach: filterLocs">
+                            <a href="#!" data-bind="text: $data.locName, click: $parent.markerToggle.bind($data.id, $index())"></a>
                         </div>
                     </div>
                 </div>
@@ -59,6 +60,12 @@
         </div>
 
         <div id="map"></div>
+
+        <div class="attribution">
+            <div>
+                <img src="img/foursquare.png" alt="foursqaure">
+            </div>
+        </div>
     </main>
 
 

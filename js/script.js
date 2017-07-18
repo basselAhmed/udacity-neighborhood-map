@@ -6,35 +6,50 @@
  */
 function AppViewModel() {
 	var self = this;
-	this.searchStr = ko.observable("");
+	this.filterKeyword = ko.observable("");
 	this.locs = ko.observableArray([]);
 	this.markers = ko.observableArray([]);
 	this.infoWindows = ko.observableArray([]);
 
+
 	/**
-	 * Event for keyup on search box to filter results and show the respective markers on the map
+	 * Event for keyup on search box to update the list view
+	 * Thanks to an udacity reviewer who helped me in this
 	 */
-	$('#search').keyup(function () {
-		var $sideLocs = $('#list-view a');
-		var val = $(this).val().toLowerCase();
-		$sideLocs.hide();
-		self.markers().forEach(function (m) {
-			m.setVisible(false);
+	this.filterLocs = ko.computed(() => {
+		if (!this.filterKeyword()) {
+			// No input found, return all locss
+			return this.locs();
+		} else {
+			// input found, match keyword to filter
+			return ko.utils.arrayFilter(this.locs(), (locss) => {
+				var returnVal = locss.locName.toLowerCase().indexOf(this.filterKeyword().toLowerCase()) !== -1
+				return returnVal;
+			});
+		} //.conditional
+	}); //.filterLocs
+
+	/**
+	 * Event for keyup on search box to show the respective markers on the map
+	 */
+	this.markersUpdate = function () {
+		console.log(this.filterLocs());
+		this.markers().forEach(function (mr) {
+			mr.setVisible(false);
+			this.filterLocs().forEach(function (lc) {
+				if ( mr.id == lc.id ) {
+					mr.setVisible(true);
+				}
+			}, this);
 		}, this);
-		$sideLocs.each(function (index, el) {
-			var thisText = $(this).text().toLowerCase();
-			if (thisText.indexOf(val) > -1) {
-				$(this).show();
-				self.markers()[index].setVisible(true);
-			}
-		});
-	});
+	}
+
 
 	/**
 	 * Function for displaying single marker when clicking on a single item from the sidebar
 	 */
-	this.markerToggle = function (index) {
-		console.log(index);
+	this.markerToggle = function (index, data) {
+		index = data.id;
 		self.markers().forEach(function (m) {
 			m.setVisible(false);
 			if (m.id == index) {
@@ -44,11 +59,11 @@ function AppViewModel() {
 					m.setAnimation(null);
 				}, 1400);
 				self.infoWindows().forEach(function (info) {
+					info.close();
 					if (info.id == index) {
 						info.open(map, m);
 					}
 				}, this);
-
 			}
 		}, this);
 	};
@@ -86,7 +101,7 @@ function AppViewModel() {
 		});
 
 		// get IP from API
-		
+
 	};
 }
 
@@ -102,34 +117,32 @@ function getLoc() {
 		var myLat = parseFloat(myLoc.split(',')[0]);
 		var myLng = parseFloat(myLoc.split(',')[1]);
 
-		var styles = [];
-		getStyles(styles, myLat, myLng);
+		initMap(myLat, myLng)
 
-	}).fail(function(err){
-		console.log(err);
-		Materialize.toast("Couldn't connect to API", 4000, 'rounded') 
+	}).fail(function (err) {
+		// console.log(err);
+		Materialize.toast("Couldn't connect to API", 4000, 'rounded')
 	});
 }
 
-function getStyles(styles, myLat, myLng) {
+function getStyles(styles, map) {
 	/**
 	 * Night mode style - credit goes to google :D
 	 */
 	$.getJSON('js/mapStyle.json', function (data) {
-		console.log(data)
+		// console.log(data)
 		styles = data
-
-		initMap(styles, myLat, myLng);
-	}).fail(function(err){
-		console.log(err);
-		Materialize.toast("Couldn't Fetch Map Style", 4000, 'rounded') 
+		map.setOptions({styles: styles});
+	}).fail(function (err) {
+		// console.log(err);
+		Materialize.toast("Couldn't Fetch Map Style", 4000, 'rounded')
 	});
 }
 
-function initMap(styles, myLat, myLng) {
+function initMap(myLat, myLng) {
+
+	var styles = [];
 	
-
-
 	var pos = {
 		lat: myLat,
 		lng: myLng
@@ -143,6 +156,8 @@ function initMap(styles, myLat, myLng) {
 		center: pos,
 		styles: styles
 	});
+
+	getStyles(styles, map);
 
 	/**
 	 * Get nearby places of restaurant type around a radius of the users location
@@ -180,7 +195,7 @@ function initMap(styles, myLat, myLng) {
 		// Get Locations from our appViewModel
 		var arr = avm.locs();
 		arr.forEach(function (loc) {
-			console.log(loc);
+			// console.log(loc);
 			var marker = new google.maps.Marker({
 				id: loc.id,
 				position: loc.locPos,
@@ -268,7 +283,7 @@ function initMap(styles, myLat, myLng) {
 					flag = 0;
 				},
 				error: function (err) {
-					console.log(err);
+					// console.log(err);
 					Materialize.toast("Couldn't connect to Foursquare API", 4000, 'rounded')
 				}
 			});
@@ -284,7 +299,7 @@ function initMap(styles, myLat, myLng) {
 			setTimeout(function () {
 				marker.setAnimation(null);
 			}, 1400);
-			avm.infoWindows().forEach(function(inf){
+			avm.infoWindows().forEach(function (inf) {
 				inf.close();
 			})
 			infoWindow.open(map, marker);
